@@ -1,9 +1,9 @@
 #---- importing necessary packages:
 from PySide2.QtWidgets import QApplication, QGridLayout, QDialog, QPushButton, QLabel, QLineEdit
+from PySide2.QtGui import QFont
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from numpy import *    # Instead of (import numpy as np) to allow for "sin(x)" instead of "np.sin(x)" as input
-from math import *     # To allow for log(27,3) as log 27 with base 3 "as it is not supported in numpy"
 import sys
 
 
@@ -16,18 +16,26 @@ class MainApp(QDialog):
 
         self.figure = plt.figure()              # matplotlib object to display the plotted function
         self.canvas = FigureCanvas(self.figure) # object to render the matplotlib figure content
-                
+        
+        self.my_font = QFont("Calibri", 12,QFont.Bold) # setting font object to use in Label-Texts
+
         self.lbl_func_error = QLabel() # To display the error message to user when typing the function
         self.lbl_xlim_error = QLabel() # To display the error message to user when typing the xlimts
         
         self.lbl_xtext_1 = QLabel() # To display certain text on the GUI window
         self.lbl_xtext_2 = QLabel() # To display certain text on the GUI window
         self.lbl_xtext_1.setText("Your X_limits are from")
-        self.lbl_xtext_2.setText("to")
+        self.lbl_xtext_2.setText("To")
+        self.lbl_xtext_1.setFont(self.my_font)
+        self.lbl_xtext_2.setFont(self.my_font)
         
-        
+        self.lbl_func_text = QLabel()
+        self.lbl_func_text.setText("Type your function formula below:")
+        self.lbl_func_text.setFont(self.my_font)
+
         self.button = QPushButton()
-        self.button.setText("Plot The Function")
+        self.button.setText("Click Here To Plot 📈")
+        self.button.setFont(self.my_font)
 
         self.line_func   = QLineEdit() # To receive the user-input function formula
         self.line_xlim_l = QLineEdit() # To receive the user-input Left xlimit
@@ -51,9 +59,10 @@ class MainApp(QDialog):
         layout.addWidget(self.line_xlim_r,  1,3, 1,1)    # to receive right xlimit
         layout.addWidget(self.lbl_xlim_error,  2,0, 1,2) # to display any arised xlimits-related errors 
         layout.addWidget(self.canvas,  3,0, 4,4)         # to display the function graph
-        layout.addWidget(self.line_func,  7,0, 1,4)      # to receive the function formula
+        layout.addWidget(self.lbl_func_text)             # to display "Type your function formula below:"
+        layout.addWidget(self.line_func,  8,0, 1,4)      # to receive the function formula
         layout.addWidget(self.lbl_func_error)            # to display any arised function-related errors
-        layout.addWidget(self.button,  9,0, 1,4)         # to display the plotting button
+        layout.addWidget(self.button,  10,0, 1,4)        # to display the plotting button
                 
         self.setLayout(layout)
 
@@ -101,10 +110,9 @@ class MainApp(QDialog):
         try:
             if (self.x_lim_left == self.x_lim_right) :
                 return self.lbl_func_error.setText('❌ X_Limits cannot be equal ❌')
-                
+
             x = linspace(self.x_lim_left,self.x_lim_right,1000)
         except:
-            print(type(self.x_lim_left),self.x_lim_left)
             return self.lbl_func_error.setText('❌ Check your X-Limits ❌')  # return here is to exit the function plotter incase of errors
         
         
@@ -127,7 +135,7 @@ class MainApp(QDialog):
             self.figure.clear()         # delete the figure object after rendering the plot on the canvas object
         
         except:
-            self.lbl_func_error.setText("❌ Enter your function like this example: 5*x^2 + 3*x ❌" )
+            self.lbl_func_error.setText("❌ Fill the function formula like this example: 5*x^2 + 3*x ❌" )
 
 
 # create an object of our GUI and start the event loop of the GUI:
