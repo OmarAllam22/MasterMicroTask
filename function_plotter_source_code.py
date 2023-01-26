@@ -117,8 +117,8 @@ class MainApp(QDialog):
             
             x = linspace(self.x_lim_left,self.x_lim_right,1000)
         except:
-            self.lbl_func_error.setText('❌ Check your X-Limits ❌')  # return here is to exit the function plotter incase of errors
-            return None
+            self.lbl_func_error.setText('❌ Check your X-Limits ❌')  
+            return None   # return here is to exit the function plotter incase of errors
         
         try:                
             # In order to plot constant functions like: f(x) = 5
