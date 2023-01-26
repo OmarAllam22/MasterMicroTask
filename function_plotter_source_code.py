@@ -60,7 +60,7 @@ class MainApp(QDialog):
         layout.addWidget(self.line_xlim_r,  1,3, 1,1)    # to receive right xlimit
         layout.addWidget(self.lbl_xlim_error,  2,0, 1,2) # to display any arised xlimits-related errors 
         layout.addWidget(self.canvas,  3,0, 4,4)         # to display the function graph
-        layout.addWidget(self.toolbar,  7,2)             # to display the toolbar
+        layout.addWidget(self.toolbar,  7,3)             # to display the toolbar
         layout.addWidget(self.lbl_func_text,  7,0)       # to display "Type your function formula below:"
         layout.addWidget(self.line_func,  8,0, 1,4)      # to receive the function formula
         layout.addWidget(self.lbl_func_error)            # to display any arised function-related errors
