@@ -2,7 +2,7 @@
 from PySide2.QtWidgets import QApplication, QGridLayout, QDialog, QPushButton, QLabel, QLineEdit
 from PySide2.QtGui import QFont
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT as NavigationToolbar
 from numpy import *    # Instead of (import numpy as np) to allow for "sin(x)" instead of "np.sin(x)" as input
 import sys
 
@@ -14,9 +14,10 @@ class MainApp(QDialog):
     #---- Declaring necessary variables            
         self.setWindowTitle("Function Plotter App")
 
-        self.figure = plt.figure()              # matplotlib object to display the plotted function
-        self.canvas = FigureCanvas(self.figure) # object to render the matplotlib figure content
-        
+        self.figure  = plt.figure()                   # matplotlib object to display the plotted function
+        self.canvas  = FigureCanvas(self.figure)      # object to render the matplotlib figure content
+        self.toolbar = NavigationToolbar(self.canvas) # toolbar to add extra control to the plot canvas
+
         self.my_font = QFont("Calibri", 12,QFont.Bold) # setting font object to use in Label-Texts
 
         self.lbl_func_error = QLabel() # To display the error message to user when typing the function
@@ -59,7 +60,8 @@ class MainApp(QDialog):
         layout.addWidget(self.line_xlim_r,  1,3, 1,1)    # to receive right xlimit
         layout.addWidget(self.lbl_xlim_error,  2,0, 1,2) # to display any arised xlimits-related errors 
         layout.addWidget(self.canvas,  3,0, 4,4)         # to display the function graph
-        layout.addWidget(self.lbl_func_text)             # to display "Type your function formula below:"
+        layout.addWidget(self.toolbar,  7,2)             # to display the toolbar
+        layout.addWidget(self.lbl_func_text,  7,0)       # to display "Type your function formula below:"
         layout.addWidget(self.line_func,  8,0, 1,4)      # to receive the function formula
         layout.addWidget(self.lbl_func_error)            # to display any arised function-related errors
         layout.addWidget(self.button,  10,0, 1,4)        # to display the plotting button
@@ -103,18 +105,20 @@ class MainApp(QDialog):
         
         """
         
-        # Reset the labels error-text at each new call for the function
+        # Reset the label texts & figure at each new function call
         self.lbl_xlim_error.setText("")  
         self.lbl_func_error.setText("")  
+        self.figure.clear()       
         
         try:
-            if (self.x_lim_left == self.x_lim_right) :
-                return self.lbl_func_error.setText('❌ X_Limits cannot be equal ❌')
-
+            if (self.x_lim_left >= self.x_lim_right) :
+                self.lbl_func_error.setText('❌ Left X-Limit must be "less than" Right X-Limit ❌')
+                return None
+            
             x = linspace(self.x_lim_left,self.x_lim_right,1000)
         except:
-            return self.lbl_func_error.setText('❌ Check your X-Limits ❌')  # return here is to exit the function plotter incase of errors
-        
+            self.lbl_func_error.setText('❌ Check your X-Limits ❌')  # return here is to exit the function plotter incase of errors
+            return None
         
         try:                
             # In order to plot constant functions like: f(x) = 5
@@ -124,15 +128,14 @@ class MainApp(QDialog):
             else:
                 self.y = eval(self.line_func.text().lower().replace("^","**"))
 
-            ax = self.figure.add_subplot(111) # this method takes 3 parameters: (nrows, ncols, index) (111) means row:1, col:1, index:1
-            ax.set_xlim(self.x_lim_left,self.x_lim_right)
-            ax.plot(x,self.y)
+            self.ax = self.figure.add_subplot(111) # this method takes 3 parameters: (nrows, ncols, index) (111) means row:1, col:1, index:1
+            self.ax.set_xlim(self.x_lim_left,self.x_lim_right)
+            self.ax.plot(x,self.y)
             plt.axhline(y=0, color='k') # mark the x-axis as solid black line 
             plt.axvline(x=0, color='k') # mark the y-axis as solid black line
             plt.grid()                  # show grids to help inreading plot values
 
             self.canvas.draw()
-            self.figure.clear()         # delete the figure object after rendering the plot on the canvas object
         
         except:
             self.lbl_func_error.setText("❌ Fill the function formula like this example: 5*x^2 + 3*x ❌" )
